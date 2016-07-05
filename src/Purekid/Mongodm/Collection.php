@@ -27,7 +27,7 @@ namespace Purekid\Mongodm;
  * @license  https://github.com/purekid/mongodm/blob/master/LICENSE.md MIT Licence
  * @link     https://github.com/purekid/mongodm
  */
-class Collection  implements \IteratorAggregate, \ArrayAccess, \Countable
+class Collection implements \IteratorAggregate, \ArrayAccess, \Countable
 {
 
     private $_items = array();
@@ -44,9 +44,11 @@ class Collection  implements \IteratorAggregate, \ArrayAccess, \Countable
 
         $i = 0;
         foreach ($models as $model) {
-            if (! ($model instanceof Model)) continue;
+            if (!($model instanceof Model)) {
+                continue;
+            }
             if ($model->exists()) {
-                $id = (string) $model->getId();
+                $id = (string)$model->getId();
             } elseif ($model->getIsEmbed()) {
                 $id = $i++;
                 $model->setTempId($id);
@@ -69,7 +71,7 @@ class Collection  implements \IteratorAggregate, \ArrayAccess, \Countable
     public function add($items)
     {
         if ($items && $items instanceof \Purekid\Mongodm\Model) {
-            $id = (string) $items->getId();
+            $id = (string)$items->getId();
             $this->_items[$id] = $items;
         } elseif (is_array($items)) {
             foreach ($items as $obj) {
@@ -104,7 +106,7 @@ class Collection  implements \IteratorAggregate, \ArrayAccess, \Countable
         } else {
 
             if ($index instanceof \MongoId) {
-                $index = (string) $index;
+                $index = (string)$index;
             }
 
             if ($this->has($index)) {
@@ -130,7 +132,7 @@ class Collection  implements \IteratorAggregate, \ArrayAccess, \Countable
 
         $item = $this->get($param);
         if ($item) {
-            $id = (string) $item->getId();
+            $id = (string)$item->getId();
             if ($this->_items[$id]) {
                 unset($this->_items[$id]);
             }
@@ -151,7 +153,9 @@ class Collection  implements \IteratorAggregate, \ArrayAccess, \Countable
      */
     public function slice($offset, $length = null, $preserveKeys = false)
     {
-        return new static(array_slice($this->_items, $offset, $length, $preserveKeys));
+        return new static(
+            array_slice($this->_items, $offset, $length, $preserveKeys)
+        );
     }
 
     /**
@@ -163,7 +167,9 @@ class Collection  implements \IteratorAggregate, \ArrayAccess, \Countable
      */
     public function take($limit = null)
     {
-        if ($limit < 0) return $this->slice($limit, abs($limit));
+        if ($limit < 0) {
+            return $this->slice($limit, abs($limit));
+        }
         return $this->slice(0, $limit);
     }
 
@@ -188,13 +194,13 @@ class Collection  implements \IteratorAggregate, \ArrayAccess, \Countable
     {
 
         if ($param instanceof \MongoId) {
-            $id = (string) $param;
+            $id = (string)$param;
         } elseif ($param instanceof Model) {
-            $id = (string) $param->getId();
+            $id = (string)$param->getId();
         } elseif (is_string($param)) {
             $id = $param;
         }
-        if ( isset($id) && isset($this->_items[$id]) ) {
+        if (isset($id) && isset($this->_items[$id])) {
             return true;
         }
 
@@ -233,11 +239,11 @@ class Collection  implements \IteratorAggregate, \ArrayAccess, \Countable
      * Sort the collection using the given Closure
      *
      * @param \Closure $callback callback
-     * @param boolean $asc      asc
+     * @param boolean  $asc      asc
      *
      * @return \Purekid\Mongodm\Collection
      */
-    public function sortBy(\Closure $callback , $asc = false)
+    public function sortBy(\Closure $callback, $asc = false)
     {
         $results = array();
 
@@ -268,7 +274,7 @@ class Collection  implements \IteratorAggregate, \ArrayAccess, \Countable
     public function reverse()
     {
 
-        $this->_items =  array_reverse($this->_items);
+        $this->_items = array_reverse($this->_items);
 
         return $this;
 
@@ -339,13 +345,13 @@ class Collection  implements \IteratorAggregate, \ArrayAccess, \Countable
      *
      * @return array
      */
-    public function toArray($is_numeric_index = true ,$itemToArray = false)
+    public function toArray($is_numeric_index = true, $itemToArray = false)
     {
 
         $array = array();
         foreach ($this->_items as $item) {
             if (!$is_numeric_index) {
-                $id = (string) $item->getId();
+                $id = (string)$item->getId();
                 if ($itemToArray) {
                     $item = $item->toArray();
                 }
@@ -372,7 +378,7 @@ class Collection  implements \IteratorAggregate, \ArrayAccess, \Countable
 
         $array = array();
         foreach ($this->_items as $item) {
-            $item = $item->toArray(array('_type','_id'));
+            $item = $item->toArray(array('_type', '_id'));
             $array[] = $item;
         }
 
@@ -465,10 +471,11 @@ class Collection  implements \IteratorAggregate, \ArrayAccess, \Countable
      *
      * @return \Purekid\Mongodm\Collection
      */
-    public function save(){
+    public function save()
+    {
 
-        foreach($this->_items as $item){
-            if($item->exists()){
+        foreach ($this->_items as $item) {
+            if ($item->exists()) {
                 $item->save();
             }
         }
@@ -482,13 +489,14 @@ class Collection  implements \IteratorAggregate, \ArrayAccess, \Countable
      *
      * @return \Purekid\Mongodm\Collection
      */
-    public function delete(){
+    public function delete()
+    {
 
-        foreach($this->_items as $key => $item){
-            if($item->exists()){
+        foreach ($this->_items as $key => $item) {
+            if ($item->exists()) {
                 $deleted = $item->delete();
-                if($deleted){
-                   unset($this->_items[$key]);
+                if ($deleted) {
+                    unset($this->_items[$key]);
                 }
             }
         }
@@ -497,4 +505,141 @@ class Collection  implements \IteratorAggregate, \ArrayAccess, \Countable
 
     }
 
+    public function getArrayData($recursive = false, $deep = 1)
+    {
+        $arrCollection = $this->toArray(true, true);
+
+        if($recursive && 0 < $deep) {
+            $referenceFields = $this->getReferenceFields();
+            $collections = $this->getRefCollections($referenceFields);
+
+            /** @var Collection $collection */
+            foreach ($collections as &$collection) {
+                $collection = $collection->getArrayData($recursive, --$deep);
+            }
+
+            $arrCollection = $this->applyForItems($arrCollection, $collections);
+        }
+
+        return $arrCollection;
+    }
+
+    private function applyForItems($arrCollection, $collections)
+    {
+        reset($this->_items);
+        /** @var Model $item */
+        $item = $this->first();
+        $attrs = $item->getAttrs();
+
+        foreach($arrCollection as &$collectionItem) {
+            foreach($collections as $fieldName => $collection) {
+                if(isset($collectionItem[$fieldName])) {
+                    switch($attrs[$fieldName]['type']) {
+                        case $item::DATA_TYPE_REFERENCE:
+                            $arrItem = $this->getByIdFromArrCollection(
+                                $collection, $collectionItem[$fieldName]['$id']
+                            );
+                            if($arrItem !== false) {
+                                $collectionItem[$fieldName] = $arrItem;
+                            }
+                            break;
+                        case $item::DATA_TYPE_REFERENCES:
+                            $arrSubItems = [];
+                            foreach($collectionItem[$fieldName] as &$collectionSubItems)
+                            {
+                                $arrItem = $this->getByIdFromArrCollection(
+                                    $collection, $collectionSubItems['$id']
+                                );
+                                if($arrItem !== false) {
+                                    array_push($arrSubItems, $arrItem);
+
+                                }
+                                break;
+                            }
+                            $collectionItem[$fieldName] = $arrSubItems;
+                    }
+                }
+            }
+        }
+        return $arrCollection;
+    }
+
+    private function getByIdFromArrCollection($arrCollection, $id)
+    {
+        foreach ($arrCollection as $arrItem) {
+            if ($arrItem['_id'] == $id) {
+                return $arrItem;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return array
+     * @throws \Exception
+     */
+    private function getReferenceFields()
+    {
+        $referenceFields = [];
+
+        /** @var Model $item */
+        foreach ($this->_items as $item) {
+            foreach ($item->getAttrs() as $attrName => $attrValue) {
+                if (isset($item->{$attrName}, $attrValue['type'])
+                    && ($item::DATA_TYPE_REFERENCE == $attrValue['type']
+                    || $item::DATA_TYPE_REFERENCES == $attrValue['type'])
+                ) {
+                    if (!isset($attrValue['model'])) {
+                        throw new \Exception(
+                            'Model attribute value doesn\'t exist'
+                        );
+                    }
+
+                    if (!isset($referenceFields[$attrName])) {
+                        $referenceFields[$attrName] = [
+                            '$in'   => [],
+                            'model' => $attrValue['model']
+                        ];
+                    }
+                    if ($item::DATA_TYPE_REFERENCE == $attrValue['type']) {
+                        $referenceFields[$attrName]['$in'][
+                            (string)$item->cleanData[$attrName]['$id']
+                        ] = $item->cleanData[$attrName]['$id'];
+                    } else {
+                        if ($item::DATA_TYPE_REFERENCES == $attrValue['type']) {
+                            foreach ($item->cleanData[$attrName] as $ref) {
+                                $referenceFields[$attrName]['$in'][
+                                    (string)$ref['$id']
+                                ] = $ref['$id'];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return $referenceFields;
+    }
+
+    /**
+     * @param $referenceFields
+     *
+     * @return array
+     */
+    private function getRefCollections($referenceFields)
+    {
+        $collections = [];
+        foreach ($referenceFields as $referenceName => $referenceValue) {
+            /** @var Model $model */
+            $model = $referenceValue['model'];
+            $collection = $model::find(
+                [
+                    '_id' => ['$in' => array_values($referenceValue['$in'])]
+                ]
+            );
+            $collections[$referenceName] = $collection;
+        }
+        return $collections;
+    }
 }

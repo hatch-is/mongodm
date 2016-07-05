@@ -1258,7 +1258,7 @@ abstract class Model
      *
      * @return array
      */
-    protected static function getAttrs()
+    public static function getAttrs()
     {
         $class = get_called_class();
         $parent = get_parent_class($class);
