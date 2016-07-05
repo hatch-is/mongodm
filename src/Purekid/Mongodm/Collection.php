@@ -529,28 +529,33 @@ class Collection implements \IteratorAggregate, \ArrayAccess, \Countable
         reset($this->_items);
         /** @var Model $item */
         $item = $this->first();
-        $attrs = $item->getAttrs();
+        if (empty($item)) {
+            return $arrCollection;
+        }
 
-        foreach($arrCollection as &$collectionItem) {
-            foreach($collections as $fieldName => $collection) {
-                if(isset($collectionItem[$fieldName])) {
-                    switch($attrs[$fieldName]['type']) {
+        $attrs = $item->getAttrs();
+        foreach ($arrCollection as &$collectionItem) {
+            foreach ($collections as $fieldName => $collection) {
+                if (isset($collectionItem[$fieldName])) {
+                    switch ($attrs[$fieldName]['type']) {
                         case $item::DATA_TYPE_REFERENCE:
                             $arrItem = $this->getByIdFromArrCollection(
                                 $collection, $collectionItem[$fieldName]['$id']
                             );
-                            if($arrItem !== false) {
+                            if ($arrItem !== false) {
                                 $collectionItem[$fieldName] = $arrItem;
                             }
                             break;
                         case $item::DATA_TYPE_REFERENCES:
                             $arrSubItems = [];
-                            foreach($collectionItem[$fieldName] as &$collectionSubItems)
-                            {
+                            foreach (
+                                $collectionItem[$fieldName] as &
+                                $collectionSubItems
+                            ) {
                                 $arrItem = $this->getByIdFromArrCollection(
                                     $collection, $collectionSubItems['$id']
                                 );
-                                if($arrItem !== false) {
+                                if ($arrItem !== false) {
                                     array_push($arrSubItems, $arrItem);
 
                                 }
