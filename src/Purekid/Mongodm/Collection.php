@@ -557,9 +557,7 @@ class Collection implements \IteratorAggregate, \ArrayAccess, \Countable
                                 );
                                 if ($arrItem !== false) {
                                     array_push($arrSubItems, $arrItem);
-
                                 }
-                                break;
                             }
                             $collectionItem[$fieldName] = $arrSubItems;
                     }
