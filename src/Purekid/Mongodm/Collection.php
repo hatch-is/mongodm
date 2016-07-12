@@ -515,7 +515,7 @@ class Collection implements \IteratorAggregate, \ArrayAccess, \Countable
 
             /** @var Collection $collection */
             foreach ($collections as &$collection) {
-                $collection = $collection->getArrayData($recursive, --$deep);
+                $collection = $collection->getArrayData($recursive, $deep - 1);
             }
 
             $arrCollection = $this->applyForItems($arrCollection, $collections);

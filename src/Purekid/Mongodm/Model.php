@@ -334,23 +334,26 @@ abstract class Model
                         }
                         $obj = $model::id($value['$id']);
                         if ($obj) {
-                            $this->cleanData[$key] = $obj->toArray($ignore, $recursive, --$deep);
+                            $this->cleanData[$key] = $obj->toArray($ignore, $recursive, $deep - 1);
                         }
                     } else if ($attrs[$key]['type'] == self::DATA_TYPE_REFERENCES &&
                         isset($attrs[$key]['model']) && !empty($attrs[$key]['model'])) {
                         $model = $attrs[$key]['model'];
                         $data = array();
-                        foreach($value as $item) {
+                        foreach ($value as $item) {
                             if (!is_array($item)) {
                                 $item = (array)$item;
                             }
                             $obj = $model::id($item['$id']);
                             if ($obj) {
-                               $data[]  = $obj->toArray($ignore, $recursive, --$deep);
+                                $data[] = $obj->toArray(
+                                    $ignore, $recursive, $deep - 1
+                                );
                             }
                         }
-                        if (!empty($data))
+                        if (!empty($data)) {
                             $this->cleanData[$key] = $data;
+                        }
                     }
                 }
             }
