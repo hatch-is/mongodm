@@ -505,6 +505,18 @@ abstract class Model
 
     }
 
+    public function findAndModify(
+        array $query = [],
+        array $update = [],
+        array $fields = [],
+        array $options = []
+    ) {
+        self::processCriteriaWithType($query);
+        $result = self::connection()->findAndModify(static::$collection, $query, $update, $fields, $options);
+
+        return $result;
+    }
+
     /**
      * Retrieve all records
      *
