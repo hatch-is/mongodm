@@ -464,6 +464,34 @@ class MongoDB
     }
 
     /**
+     * @param       $collection_name
+     * @param array $query
+     * @param array $update
+     * @param array $fields
+     * @param array $options
+     *
+     * @return mixed
+     */
+    public function findAndModify(
+        $collection_name,
+        array $query = [],
+        array $update = null,
+        array $fields = [],
+        array $options = null
+    ) {
+        $a = 1;
+        return $this->_call(
+            'findAndModify', [
+                'collection_name'   => $collection_name,
+                'query'             => $query,
+                'update'            => $update,
+                'fields'            => $fields,
+                'options'           => $options
+            ]
+        );
+    }
+
+    /**
      * group
      *
      * @param string $collection_name collection name
@@ -744,7 +772,6 @@ class MongoDB
                 break;
             case 'insert':
                 $r = $c->insert($values, $options);
-
                 return $values;
                 break;
             case 'remove':
@@ -771,11 +798,13 @@ class MongoDB
             case 'aggregate':
                 $r = call_user_func_array(array($c, 'aggregate'), $ops);
                 break;
+            case 'findAndModify':
+                $r = call_user_func_array([$c, 'findAndModify'], [$query, $update, $fields, $options]);
+                break;
         }
 
         return $r;
     }
-
     /**
      * method
      *
